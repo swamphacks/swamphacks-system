@@ -2,12 +2,11 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const request = require('request-promise');
 const md5 = require('md5');
-const configFile = require('./config/config');
-const serviceAccount = require('./config/serviceAccountInfo.json');
+const { functionsConfig } = require('./config/config');
 
 // Setup
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(functionsConfig.serviceAccount),
   storageBucket: 'swamphacks-e5c4c.appspot.com',
 });
 const firestore = admin.firestore();
@@ -15,7 +14,7 @@ const storage = admin.storage().bucket();
 const auth = admin.auth();
 
 // Firestore reference for the current year, set by config
-const YEAR_REF = firestore.collection('years').doc(configFile.CURR_YEAR);
+const YEAR_REF = firestore.collection('years').doc(functionsConfig.CURR_YEAR);
 // TODO: Update this file with new config file
 
 // Helper functions
@@ -40,23 +39,23 @@ const _getAvailableCode = async () => {
 const _tagMailchimpContact = async ({ email, type }) => {
   let tag;
   if (type === 'hacker') {
-    tag = configFile.MAILCHIMP_TAGS.HACKER;
+    tag = functionsConfig.MAILCHIMP_TAGS.HACKER;
   } else if (type === 'mentor') {
-    tag = configFile.MAILCHIMP_TAGS.MENTOR;
+    tag = functionsConfig.MAILCHIMP_TAGS.MENTOR;
   } else if (type === 'volunteer') {
-    tag = configFile.MAILCHIMP_TAGS.VOLUNTEER;
+    tag = functionsConfig.MAILCHIMP_TAGS.VOLUNTEER;
   } else if (type === 'standby') {
-    tag = configFile.MAILCHIMP_TAGS.STANDBY;
+    tag = functionsConfig.MAILCHIMP_TAGS.STANDBY;
   } else if (type === 'standbyAccepted') {
-    tag = configFile.MAILCHIMP_TAGS.STANDBY_ACCEPTED;
+    tag = functionsConfig.MAILCHIMP_TAGS.STANDBY_ACCEPTED;
   } else if (type === 'accepted') {
-    tag = configFile.MAILCHIMP_TAGS.ACCEPTED;
+    tag = functionsConfig.MAILCHIMP_TAGS.ACCEPTED;
   } else if (type === 'rejected') {
-    tag = configFile.MAILCHIMP_TAGS.REJECTED;
+    tag = functionsConfig.MAILCHIMP_TAGS.REJECTED;
   } else if (type === 'confirmed') {
-    tag = configFile.MAILCHIMP_TAGS.CONFIRMED;
+    tag = functionsConfig.MAILCHIMP_TAGS.CONFIRMED;
   } else if (type === 'attended') {
-    tag = configFile.MAILCHIMP_TAGS.ATTENDED;
+    tag = functionsConfig.MAILCHIMP_TAGS.ATTENDED;
   } else {
     console.error(`Invalid tag type ${type}.`);
     return;
@@ -64,7 +63,7 @@ const _tagMailchimpContact = async ({ email, type }) => {
   console.log(`[${email}] Tagging contact as ${tag.label}...`);
   try {
     await request({
-      url: `https://us10.api.mailchimp.com/3.0/lists/${configFile.MAILCHIMP_LIST_ID}/segments/${tag.id}/members`,
+      url: `https://us10.api.mailchimp.com/3.0/lists/${functionsConfig.MAILCHIMP_LIST_ID}/segments/${tag.id}/members`,
       method: 'POST',
       headers: {
         Authorization: `auth ${functions.config().mailchimp.key}`,
@@ -118,7 +117,7 @@ const _updateYearData = async ({ type, amount, id }) => {
 
 // Function will handle new user docs
 exports.handleNewUser = functions.firestore
-  .document(`years/${configFile.CURR_YEAR}/users/{docID}`)
+  .document(`years/${functionsConfig.CURR_YEAR}/users/{docID}`)
   .onCreate(async (snap, context) => {
     // Handle mailchimp contact creation and tagging
     // Get document data
@@ -131,7 +130,7 @@ exports.handleNewUser = functions.firestore
     try {
       console.log(`[${email}] Trying to update contact...`);
       await request({
-        url: `https://us10.api.mailchimp.com/3.0/lists/${configFile.MAILCHIMP_LIST_ID}/members/${hashedEmail}`,
+        url: `https://us10.api.mailchimp.com/3.0/lists/${functionsConfig.MAILCHIMP_LIST_ID}/members/${hashedEmail}`,
         method: 'PATCH',
         headers: {
           Authorization: `auth ${functions.config().mailchimp.key}`,
@@ -154,7 +153,7 @@ exports.handleNewUser = functions.firestore
         `[${email}] Contact does not exist, creating a new contact...`
       );
       await request({
-        url: `https://us10.api.mailchimp.com/3.0/lists/${configFile.MAILCHIMP_LIST_ID}/members/`,
+        url: `https://us10.api.mailchimp.com/3.0/lists/${functionsConfig.MAILCHIMP_LIST_ID}/members/`,
         method: 'POST',
         headers: {
           Authorization: `auth ${functions.config().mailchimp.key}`,
@@ -182,7 +181,7 @@ exports.handleNewUser = functions.firestore
 
 // Function will handle updates to user docs
 exports.handleUpdatedUser = functions.firestore
-  .document(`years/${configFile.CURR_YEAR}/users/{docID}`)
+  .document(`years/${functionsConfig.CURR_YEAR}/users/{docID}`)
   .onUpdate(async (change, context) => {
     // Get document data
     const beforeData = change.before.data();
@@ -301,8 +300,8 @@ exports.handleUpdatedUser = functions.firestore
 exports.submitApplication = functions.https.onCall(async (data, context) => {
   const { type, applicationData, resumeData } = data;
   if (
-    configFile.APPLICATION_TYPES[type] === undefined ||
-    configFile.APPLICATION_TYPES[type] === false
+    functionsConfig.APPLICATION_TYPES[type] === undefined ||
+    functionsConfig.APPLICATION_TYPES[type] === false
   ) {
     console.error(`The application type ${type} is not supported.`);
     throw new functions.https.HttpsError(
@@ -465,7 +464,7 @@ exports.checkIn = functions.https.onCall(async (data, context) => {
   // Double check that the nfcID has not been used
   const checkRef = firestore
     .collection('years')
-    .doc(configFile.CURR_YEAR)
+    .doc(functionsConfig.CURR_YEAR)
     .collection('users')
     .where('tagID', '==', nfcID);
   const checkDocs = await checkRef.get();
@@ -479,7 +478,7 @@ exports.checkIn = functions.https.onCall(async (data, context) => {
   // Find the hacker's application
   const ref = firestore
     .collection('years')
-    .doc(configFile.CURR_YEAR)
+    .doc(functionsConfig.CURR_YEAR)
     .collection('users')
     .doc(docID);
   await ref.update({
@@ -509,7 +508,7 @@ exports.getHackerByCode = functions.https.onCall(async (data, context) => {
   const { code, checkIn } = data;
   const ref = firestore
     .collection('years')
-    .doc(configFile.CURR_YEAR)
+    .doc(functionsConfig.CURR_YEAR)
     .collection('users')
     .where('applicationType', 'in', ['hacker', 'standby'])
     .where('code', '==', code.toUpperCase());
@@ -565,7 +564,7 @@ exports.getHackersByName = functions.https.onCall(async (data, context) => {
   const { firstName, lastName, checkIn } = data;
   const ref = firestore
     .collection('years')
-    .doc(configFile.CURR_YEAR)
+    .doc(functionsConfig.CURR_YEAR)
     .collection('users')
     .where('applicationType', 'in', ['hacker', 'standby'])
     .where('confirmed', '==', true)
@@ -594,7 +593,7 @@ exports.getHackersByName = functions.https.onCall(async (data, context) => {
 exports.getFoodTokens = functions.https.onCall(async (data, context) => {
   const ref = firestore
     .collection('years')
-    .doc(configFile.CURR_YEAR)
+    .doc(functionsConfig.CURR_YEAR)
     .collection('events')
     .orderBy('start')
     .where('type', '==', 'Food');
@@ -618,13 +617,13 @@ exports.consumeToken = functions.https.onCall(async (data, context) => {
   if (tagID) {
     usersRef = firestore
       .collection('years')
-      .doc(configFile.CURR_YEAR)
+      .doc(functionsConfig.CURR_YEAR)
       .collection('users')
       .where('tagID', '==', tagID);
   } else {
     usersRef = firestore
       .collection('years')
-      .doc(configFile.CURR_YEAR)
+      .doc(functionsConfig.CURR_YEAR)
       .collection('users')
       .where('code', '==', queryCode);
   }
@@ -673,7 +672,7 @@ exports.consumeToken = functions.https.onCall(async (data, context) => {
     } else {
       const uRef = firestore
         .collection('years')
-        .doc(configFile.CURR_YEAR)
+        .doc(functionsConfig.CURR_YEAR)
         .collection('users')
         .doc(uid);
       await uRef.update({
@@ -686,7 +685,7 @@ exports.consumeToken = functions.https.onCall(async (data, context) => {
   else {
     const eventsRef = firestore
       .collection('years')
-      .doc(configFile.CURR_YEAR)
+      .doc(functionsConfig.CURR_YEAR)
       .collection('events')
       .where('name', '==', token);
     const eventDocs = await eventsRef.get();
@@ -703,7 +702,7 @@ exports.consumeToken = functions.https.onCall(async (data, context) => {
     if (!consumedToken) {
       await firestore
         .collection('years')
-        .doc(configFile.CURR_YEAR)
+        .doc(functionsConfig.CURR_YEAR)
         .collection('events')
         .doc(eventDocID)
         .update({
@@ -730,7 +729,7 @@ exports.getYearConfig = functions.https.onCall(async (data, context) => {
 
 exports.setYearConfig = functions.https.onCall(async (data, context) => {
   const { index, value } = data;
-  const ref = firestore.collection('years').doc(configFile.CURR_YEAR);
+  const ref = firestore.collection('years').doc(functionsConfig.CURR_YEAR);
   const newConfig = {};
   newConfig[`config.${index}`] = value;
   await ref.update(newConfig);

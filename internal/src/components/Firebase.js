@@ -3,13 +3,13 @@ import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/functions';
 import React from 'react';
-import firebaseConfig from '../firebaseConfig.json';
+import { internalConfig } from '../config/config';
 
 const FirebaseContext = React.createContext(null);
 
 class Firebase {
   constructor() {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(internalConfig.firebaseConfig);
     this.firestore = firebase.firestore();
     this.auth = firebase.auth();
     this.functions = firebase.functions();
@@ -41,8 +41,8 @@ class Firebase {
     await this.auth.signOut();
   };
 
-  checkSignedIn = callback => {
-    const unsubscriber = this.auth.onAuthStateChanged(user => {
+  checkSignedIn = (callback) => {
+    const unsubscriber = this.auth.onAuthStateChanged((user) => {
       const val =
         user !== null &&
         (user.email === 'sponsors@swamphacks.com' ||
@@ -54,9 +54,9 @@ class Firebase {
     return unsubscriber;
   };
 
-  getYearFields = callback => {
+  getYearFields = (callback) => {
     const ref = this.firestore.collection('years').doc('2020');
-    const unsubscriber = ref.onSnapshot(snap => {
+    const unsubscriber = ref.onSnapshot((snap) => {
       const datas = snap.data();
       callback(datas);
     });
@@ -64,9 +64,9 @@ class Firebase {
   };
 }
 
-const withFirebase = Component => props => (
+const withFirebase = (Component) => (props) => (
   <FirebaseContext.Consumer>
-    {firebase => <Component {...props} firebase={firebase} />}
+    {(firebase) => <Component {...props} firebase={firebase} />}
   </FirebaseContext.Consumer>
 );
 
