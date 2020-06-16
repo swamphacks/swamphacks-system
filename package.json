@@ -1,0 +1,15 @@
+{
+  "name": "swamphacks-system",
+  "version": "1.0.0",
+  "description": "collection of software used in running swamphacks",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install-all": "concurrently \"cd dashboard/ && npm i\" \"cd functions/functions/ && npm i\" \"cd internal/ && npm i\"",
+    "dashboard-dev": "concurrently \"cd dashboard/ && npm start\" \"cd functions/functions/ && npm run serve\""
+  },
+  "author": "SwampHacks",
+  "license": "ISC"
+}
