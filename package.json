@@ -4,7 +4,9 @@
   "description": "collection of software used in running swamphacks",
   "main": "index.js",
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^4.1.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-all": "concurrently \"cd dashboard/ && npm i\" \"cd functions/functions/ && npm i\" \"cd internal/ && npm i\"",
