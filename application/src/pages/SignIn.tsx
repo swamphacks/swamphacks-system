@@ -1,16 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Form, Input, Button, Space } from 'antd';
 import { Store } from 'antd/lib/form/interface';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { RootContainer } from '../components';
 
 // Styled components
 const StyledForm = styled(Form)`
-  max-width: 400px;
+  max-width: 300px;
+  width: 100%;
 `;
 
-const Login: React.FC = () => {
+const SignIn: React.FC = () => {
   const onFinish = (values: Store) => {
     console.log(values);
     // Handle login
@@ -18,8 +20,9 @@ const Login: React.FC = () => {
 
   return (
     <RootContainer minHeight='400px'>
-      <StyledForm name='login' onFinish={onFinish}>
+      <StyledForm name='login' onFinish={onFinish} layout='vertical'>
         <Form.Item
+          label='Email'
           name='email'
           rules={[
             {
@@ -30,20 +33,21 @@ const Login: React.FC = () => {
           ]}
         >
           <Input
-            prefix={<UserOutlined className='site-form-item-icon' />}
-            placeholder='Email'
+            prefix={<MailOutlined />}
+            placeholder='example@swamphacks.com'
           />
         </Form.Item>
         <Form.Item
+          label='Password'
           name='password'
           rules={[
             { required: true, message: 'Enter the password for your account.' },
           ]}
         >
           <Input
-            prefix={<LockOutlined className='site-form-item-icon' />}
+            prefix={<LockOutlined />}
             type='password'
-            placeholder='Password'
+            placeholder='StrongPassword123'
           />
         </Form.Item>
 
@@ -53,13 +57,13 @@ const Login: React.FC = () => {
 
         <Form.Item>
           <Button style={{ width: '100%' }} type='primary' htmlType='submit'>
-            Log in
+            Sign In
           </Button>
         </Form.Item>
 
         <Form.Item>
           <p style={{ textAlign: 'center' }}>
-            Don't have an account? <a href=''>Sign up</a>.
+            New here? <Link to='/signup'>Create an account</Link>.
           </p>
         </Form.Item>
       </StyledForm>
@@ -67,4 +71,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default SignIn;
