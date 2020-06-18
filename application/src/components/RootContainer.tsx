@@ -14,7 +14,8 @@ const StyledDiv = styled.div`
   display: flex;
   ${(props: Props) => (props.centerV ? `align-items: center` : ``)};
   ${(props: Props) => (props.centerH ? `justify-content: center` : ``)};
-  ${(props: Props) => (props.minHeight ? `min-height: ${props.minHeight}` : ``)}
+  ${(props: Props) =>
+    props.minHeight ? `min-height: ${props.minHeight}` : ``};
 `;
 
 const RootContainer: React.FC<Props> = ({
