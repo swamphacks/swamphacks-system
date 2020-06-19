@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Layout, Typography, Space } from 'antd';
+import ApplicationRouteResolver from './lib/ApplicationRouteResolver';
 
 // Pages
-import { SignIn, SignUp, Portal } from './pages';
+import { SignIn, SignUp, Portal, Application } from './pages';
 
 const App: React.FC = () => {
   return (
@@ -17,6 +18,14 @@ const App: React.FC = () => {
       </Layout.Header>
       <Layout.Content style={{ height: '100%' }}>
         <Router>
+          <Route
+            exact
+            path='/application/:applicationType'
+            component={ApplicationRouteResolver}
+          />
+          <Route exact path='/application/*/general'>
+            <Application.General />
+          </Route>
           <Route exact path='/portal'>
             <Portal />
           </Route>
@@ -27,7 +36,7 @@ const App: React.FC = () => {
             <SignUp />
           </Route>
           <Route exact path='/'>
-            <Redirect to='/signin' />
+            <Redirect to='/portal' />
           </Route>
         </Router>
       </Layout.Content>

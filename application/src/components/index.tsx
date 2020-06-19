@@ -1,3 +1,4 @@
 import RootContainer from './RootContainer';
+import ApplicationTypeModal from './ApplicationTypeModal';
 
-export { RootContainer };
+export { RootContainer, ApplicationTypeModal };
