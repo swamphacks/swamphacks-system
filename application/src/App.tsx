@@ -1,10 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Layout, Typography, Space } from 'antd';
-import ApplicationRouteResolver from './lib/ApplicationRouteResolver';
 
 // Pages
-import { SignIn, SignUp, Portal, Application } from './pages';
+import {
+  SignIn,
+  SignUp,
+  Portal,
+  HackerApplication,
+  MentorApplication,
+  StandbyApplication,
+  VolunteerApplication,
+} from './pages';
 
 const App: React.FC = () => {
   return (
@@ -18,13 +25,17 @@ const App: React.FC = () => {
       </Layout.Header>
       <Layout.Content style={{ height: '100%' }}>
         <Router>
-          <Route
-            exact
-            path='/application/:applicationType'
-            component={ApplicationRouteResolver}
-          />
-          <Route exact path='/application/*/general'>
-            <Application.General />
+          <Route exact path='/application/hacker'>
+            <HackerApplication />
+          </Route>
+          <Route exact path='/application/mentor'>
+            <MentorApplication />
+          </Route>
+          <Route exact path='/application/volunteer'>
+            <VolunteerApplication />
+          </Route>
+          <Route exact path='/application/standby'>
+            <StandbyApplication />
           </Route>
           <Route exact path='/portal'>
             <Portal />

@@ -38,6 +38,7 @@ const ApplicationTypeModal: React.FC<ModalProps> = ({ open, onCancel }) => {
       <Select
         style={{ width: '100%' }}
         onChange={(val: ApplicationTypes) => setApplicationType(val)}
+        placeholder='Select application type'
       >
         {Object.keys(ApplicationTypes).map((key, index) => (
           <Option key={index} value={applicationTypeValues[index]}>
