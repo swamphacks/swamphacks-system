@@ -10,8 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-all": "concurrently \"cd dashboard/ && npm i\" \"cd functions/functions/ && npm i\" \"cd internal/ && npm i\"",
-    "setup-config": "concurrently \"cp config.js dashboard/src/config/\" \"cp config.js internal/src/config/\" \"cp config.js functions/functions/config/\"",
-    "dashboard-dev": "concurrently \"cd dashboard/ && npm start\" \"cd functions/functions/ && npm run serve\""
+    "setup-config": "concurrently \"cp config.js dashboard/src/config/\" \"cp config.js internal/src/config/\" \"cp config.js functions/functions/config/\""
   },
   "author": "SwampHacks",
   "license": "ISC"
